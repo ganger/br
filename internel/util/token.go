@@ -85,8 +85,8 @@ func GetTokenPriceFromBinance(address string) (price decimal.Decimal, err error)
 		err = errors.New("BinanceTokenPriceResponse fail")
 		return
 	}
-	if len(result.Data.KlineInfos) < 1 || len(result.Data.KlineInfos[0]) < 4 {
-		err = fmt.Errorf("BinanceTokenPriceResponse error: %s", result.Data)
+	if len(result.Data.KlineInfos) < 1 || len(result.Data.KlineInfos[0]) < 7 {
+		err = fmt.Errorf("BinanceTokenPriceResponse error: %v", result.Data)
 		return
 	}
 	price, err = decimal.NewFromString(result.Data.KlineInfos[0][4])
