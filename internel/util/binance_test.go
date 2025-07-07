@@ -10,8 +10,7 @@ import (
 func TestGetTokenPrice(t *testing.T) {
 	bootstrap.InitBscClient()
 
-	price, err := GetTokenPrice("BRUSDT")
+	ts, buy1, sell1, err := GetTokenPrice("BRUSDT")
 	assert.Nil(t, err)
-
-	fmt.Println(price)
+	fmt.Println(ts, buy1, sell1)
 }

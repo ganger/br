@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/shopspring/decimal"
 	"io"
@@ -16,11 +17,10 @@ type OrderBookResponse struct {
 	Asks         [][]string `json:"asks"` // 卖方深度 [价格, 数量]
 }
 
-func GetTokenPrice(token string) (price decimal.Decimal, err error) {
+func GetTokenPrice(token string) (timeTs int64, buy1, sell1 decimal.Decimal, err error) {
 	url := fmt.Sprintf("https://www.binance.com/fapi/v1/depth?symbol=%s&limit=5", token)
 	resp, err := http.Get(url)
 	if err != nil {
-		panic(err)
 		return
 	}
 	body, err := io.ReadAll(resp.Body)
@@ -32,8 +32,22 @@ func GetTokenPrice(token string) (price decimal.Decimal, err error) {
 	if err != nil {
 		return
 	}
-	fmt.Println(rsp.E)
-	fmt.Println(rsp.Bids[0][0])
-	fmt.Println(rsp.Bids[1][0])
+	timeTs = rsp.E
+	if len(rsp.Bids) < 1 || len(rsp.Bids[0]) < 1 {
+		err = errors.New("len(rsp.Bids) < 1 || len(rsp.Bids[0]) < 1")
+		return
+	}
+	if len(rsp.Asks) < 1 || len(rsp.Asks[0]) < 1 {
+		err = errors.New("len(rsp.Asks) < 1 || len(rsp.Asks[0]) < 1")
+		return
+	}
+	buy1, err = decimal.NewFromString(rsp.Bids[0][0])
+	if err != nil {
+		return
+	}
+	sell1, err = decimal.NewFromString(rsp.Asks[0][0])
+	if err != nil {
+		return
+	}
 	return
 }
