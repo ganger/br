@@ -28,7 +28,7 @@ func NewDataService() *DataService {
 }
 
 func (s DataService) Init() {
-	_, buy, _, err := util.GetFuturePrice(constx.BrAddress)
+	_, buy, _, err := util.GetFuturePrice(constx.BrFutureSymbol)
 	if err != nil {
 		panic(err)
 	}

@@ -7,4 +7,6 @@ const (
 	UsdtAddress = "0x55d398326f99059fF775485246999027B3197955"
 
 	BrPoolAddress = "0x380aaDF63D84D3A434073F1d5d95f02fB23d5228"
+
+	BrFutureSymbol = "BRUSDT"
 )
