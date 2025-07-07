@@ -5,10 +5,12 @@ import (
 	"br-trade/constx"
 	"br-trade/global"
 	"fmt"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"gopkg.in/yaml.v3"
 	"os"
 	"time"
+
+	"github.com/adshao/go-binance/v2"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"gopkg.in/yaml.v3"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
@@ -29,30 +31,7 @@ func InitConfig() {
 	}
 
 	global.Config = config
-	if config.App.WalletAddress == "" {
-		panic("wallet address list is empty")
-	}
-	if config.App.MessagePushUrl == "" {
-		panic("message push url is empty")
-	}
-	if config.App.ReadApiKey == "" {
-		panic("ReadApiKey is empty")
-	}
-	if config.App.ReadSecretKey == "" {
-		panic("ReadSecretKey is empty")
-	}
-	initTime, err := time.ParseInLocation(time.DateOnly, config.App.InitTime, time.Local)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("initTime:", initTime.Format(time.DateOnly))
-	if config.App.ShortBTC > 0 {
-		panic("ShortBTC > 0")
-	}
-	if config.App.IsPrd && (config.App.TradeApiKey == "" || config.App.TradeSecretKey == "") {
-		panic("IsPrd && TradeApiKey or TradeSecretKey is empty")
-	}
-	fmt.Println("JlpBalance:", config.App.JlpBalance, ",ShortBTC:", config.App.ShortBTC)
+	fmt.Println(fmt.Sprintf("%+v", global.Config))
 }
 
 func InitLogger() {
@@ -84,5 +63,7 @@ func InitBscClient() {
 	}
 
 	global.BscClient = client
+
+	global.BinanceFuturesClient = binance.NewFuturesClient(global.Config.Binance.ReadApiKey, global.Config.Binance.ReadSecretKey)
 
 }
