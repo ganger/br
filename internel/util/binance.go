@@ -7,6 +7,7 @@ import (
 	"github.com/shopspring/decimal"
 	"io"
 	"net/http"
+	"time"
 )
 
 type OrderBookResponse struct {
@@ -39,6 +40,12 @@ func GetFuturePrice(token string) (timeTs int64, buy1, sell1 decimal.Decimal, er
 	}
 	if len(rsp.Asks) < 1 || len(rsp.Asks[0]) < 1 {
 		err = errors.New("len(rsp.Asks) < 1 || len(rsp.Asks[0]) < 1")
+		return
+	}
+	now := time.Now()
+	ts := time.UnixMilli(timeTs)
+	if ts.Before(now.Add(-1 * time.Minute)) {
+		err = fmt.Errorf("期货行情落后1分钟,价格时间:%s,当前时间:%s", ts.Format(time.DateTime), now.Format(time.DateTime))
 		return
 	}
 	buy1, err = decimal.NewFromString(rsp.Bids[0][0])
