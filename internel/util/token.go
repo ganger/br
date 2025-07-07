@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/shopspring/decimal"
 	"net/http"
@@ -80,7 +81,15 @@ func GetTokenPriceFromBinance(address string) (price decimal.Decimal, err error)
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
-	price, err = decimal.NewFromString(result.Data.KlineInfos[0][0])
+	if !result.Success || result.Code != "000000" {
+		err = errors.New("BinanceTokenPriceResponse fail")
+		return
+	}
+	if len(result.Data.KlineInfos) < 1 || len(result.Data.KlineInfos[0]) < 4 {
+		err = fmt.Errorf("BinanceTokenPriceResponse error: %s", result.Data)
+		return
+	}
+	price, err = decimal.NewFromString(result.Data.KlineInfos[0][4])
 	if err != nil {
 		return
 	}
