@@ -17,7 +17,7 @@ type OrderBookResponse struct {
 	Asks         [][]string `json:"asks"` // 卖方深度 [价格, 数量]
 }
 
-func GetTokenPrice(token string) (timeTs int64, buy1, sell1 decimal.Decimal, err error) {
+func GetFuturePrice(token string) (timeTs int64, buy1, sell1 decimal.Decimal, err error) {
 	url := fmt.Sprintf("https://www.binance.com/fapi/v1/depth?symbol=%s&limit=5", token)
 	resp, err := http.Get(url)
 	if err != nil {
