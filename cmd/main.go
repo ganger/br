@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 func main() {
@@ -23,7 +22,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("shutdown server ...")
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 	svr.Stop()
 	log.Println("shutdown server done")
 }

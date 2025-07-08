@@ -85,7 +85,7 @@ func (s DataService) PushWx() {
 	msg = msg + fmt.Sprintf("流动性池子USDT余额:%s\n", s.PoolInfo.UsdtBalance.Round(6).String())
 	poolLiquidity := s.PoolInfo.BrBalance.Mul(s.BrPrice).Add(s.PoolInfo.UsdtBalance)
 	msg = msg + fmt.Sprintf("流动性总金额:%s\n", poolLiquidity.Round(6).String())
-	fmt.Println(msg)
+	global.Logger.Info(msg)
 	//util.PushWX(global.Config.Wx.MessagePushUrl, msg)
 }
 
