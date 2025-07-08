@@ -13,30 +13,48 @@ func (s DataService) Run() {
 	s.Init()
 
 	go func() {
-		s.RefreshBrPrice()
-		time.Sleep(1 * time.Second)
+		for {
+			s.RefreshBrPrice()
+			time.Sleep(1 * time.Second)
+		}
 	}()
 
 	go func() {
-		s.RefreshBrFuturePrice()
-		time.Sleep(1 * time.Second)
+		for {
+			s.RefreshBrFuturePrice()
+			time.Sleep(1 * time.Second)
+		}
+
 	}()
 
 	go func() {
-		s.RefreshPoolInfo()
-		time.Sleep(1 * time.Second)
+		for {
+			s.RefreshPoolInfo()
+			time.Sleep(1 * time.Second)
+		}
 	}()
 
 	go func() {
-		s.PushWx()
-		time.Sleep(10 * time.Second)
+		for {
+			s.PushWx()
+			time.Sleep(10 * time.Second)
+		}
 	}()
+
+	for {
+		time.Sleep(1 * time.Second)
+		if s.ShutDown {
+			return
+		}
+	}
 }
 
 type DataService struct {
 	BrPrice       decimal.Decimal
 	BrFuturePrice decimal.Decimal
 	PoolInfo      PoolInfo
+
+	ShutDown bool
 }
 
 type PoolInfo struct {
@@ -48,7 +66,7 @@ func NewDataService() *DataService {
 	return &DataService{}
 }
 
-func (s DataService) Init() {
+func (s *DataService) Init() {
 	_, buy, _, err := data.GetFuturePrice(constx.BrFutureSymbol)
 	if err != nil {
 		panic(err)
@@ -75,7 +93,7 @@ func (s DataService) Init() {
 	s.PushWx()
 }
 
-func (s DataService) PushWx() {
+func (s *DataService) PushWx() {
 
 	msg := fmt.Sprintf("服务启动成功\n=======================\n")
 	msg = msg + fmt.Sprintf("BR期货价格:%s\n", s.BrFuturePrice.Round(6).String())
@@ -89,7 +107,7 @@ func (s DataService) PushWx() {
 	//util.PushWX(global.Config.Wx.MessagePushUrl, msg)
 }
 
-func (s DataService) RefreshBrPrice() {
+func (s *DataService) RefreshBrPrice() {
 	price, err := data.GetTokenPriceFromBinance(constx.BrAddress)
 	if err != nil {
 		global.Logger.Error("获取现货价格异常")
@@ -99,7 +117,7 @@ func (s DataService) RefreshBrPrice() {
 	s.BrPrice = price
 }
 
-func (s DataService) RefreshBrFuturePrice() {
+func (s *DataService) RefreshBrFuturePrice() {
 	_, buy, _, err := data.GetFuturePrice(constx.BrFutureSymbol)
 	if err != nil {
 		global.Logger.Error("获取期货价格异常")
@@ -109,7 +127,7 @@ func (s DataService) RefreshBrFuturePrice() {
 	s.BrFuturePrice = buy
 }
 
-func (s DataService) RefreshPoolInfo() {
+func (s *DataService) RefreshPoolInfo() {
 	poolBrBalance, err := data.GetTokenBalance(global.BscClient, constx.BrAddress, constx.BrPoolAddress)
 	if err != nil {
 		if err != nil {
@@ -131,5 +149,6 @@ func (s DataService) RefreshPoolInfo() {
 	s.PoolInfo.UsdtBalance = poolUsdtBalance
 }
 
-func (s DataService) Stop() {
+func (s *DataService) Stop() {
+	s.ShutDown = true
 }
