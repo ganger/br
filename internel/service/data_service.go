@@ -91,12 +91,12 @@ func (s *DataService) Init() {
 	}
 	s.PoolInfo.UsdtBalance = poolUsdtBalance
 	s.PushWx()
+	global.Logger.Info("服务启动成功")
 }
 
 func (s *DataService) PushWx() {
 
-	msg := fmt.Sprintf("服务启动成功\n=======================\n")
-	msg = msg + fmt.Sprintf("BR期货价格:%s\n", s.BrFuturePrice.Round(6).String())
+	msg := fmt.Sprintf("BR期货价格:%s\n", s.BrFuturePrice.Round(6).String())
 	msg = msg + fmt.Sprintf("BR现货价格:%s\n", s.BrPrice.Round(6).String())
 
 	msg = msg + fmt.Sprintf("流动性池子BR余额:%s\n", s.PoolInfo.BrBalance.Round(6).String())
