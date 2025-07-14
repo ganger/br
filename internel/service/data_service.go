@@ -66,7 +66,7 @@ func (s *DataService) Run() {
 				return
 			}
 			s.PushWx()
-			time.Sleep(10 * time.Second)
+			time.Sleep(1 * time.Hour)
 		}
 	}()
 
