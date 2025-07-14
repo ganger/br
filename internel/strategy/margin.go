@@ -12,11 +12,11 @@ type MarginInfo struct {
 var MarginMap = map[int64]MarginInfo{
 	20: {
 		MaintenanceRate:      decimal.NewFromFloat(0.025),
-		QuickCalculateAmount: decimal.NewFromFloat(30.0),
+		QuickCalculateAmount: decimal.NewFromFloat(27.5),
 	},
 	10: {
 		MaintenanceRate:      decimal.NewFromFloat(0.05),
-		QuickCalculateAmount: decimal.NewFromFloat(280),
+		QuickCalculateAmount: decimal.NewFromFloat(277.5),
 	},
 }
 
