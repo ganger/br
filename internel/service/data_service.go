@@ -9,11 +9,14 @@ import (
 	"time"
 )
 
-func (s DataService) Run() {
+func (s *DataService) Run() {
 	s.Init()
 
 	go func() {
 		for {
+			if s.ShutDown {
+				return
+			}
 			s.RefreshBrPrice()
 			time.Sleep(1 * time.Second)
 		}
@@ -21,6 +24,9 @@ func (s DataService) Run() {
 
 	go func() {
 		for {
+			if s.ShutDown {
+				return
+			}
 			s.RefreshBrFuturePrice()
 			time.Sleep(1 * time.Second)
 		}
@@ -29,6 +35,9 @@ func (s DataService) Run() {
 
 	go func() {
 		for {
+			if s.ShutDown {
+				return
+			}
 			s.RefreshPoolInfo()
 			time.Sleep(1 * time.Second)
 		}
@@ -36,16 +45,20 @@ func (s DataService) Run() {
 
 	go func() {
 		for {
+			if s.ShutDown {
+				return
+			}
 			s.PushWx()
 			time.Sleep(10 * time.Second)
 		}
 	}()
 
 	for {
-		time.Sleep(1 * time.Second)
+
 		if s.ShutDown {
 			return
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
@@ -130,25 +143,32 @@ func (s *DataService) RefreshBrFuturePrice() {
 func (s *DataService) RefreshPoolInfo() {
 	poolBrBalance, err := data.GetTokenBalance(global.BscClient, constx.BrAddress, constx.BrPoolAddress)
 	if err != nil {
-		if err != nil {
-			global.Logger.Error("获取流动性池异常")
-			global.Logger.Error(err.Error())
-			return
-		}
+		global.Logger.Error("获取流动性池异常")
+		global.Logger.Error(err.Error())
+		return
 	}
 	s.PoolInfo.BrBalance = poolBrBalance
 
 	poolUsdtBalance, err := data.GetTokenBalance(global.BscClient, constx.UsdtAddress, constx.BrPoolAddress)
 	if err != nil {
-		if err != nil {
-			global.Logger.Error("获取流动性池异常")
-			global.Logger.Error(err.Error())
-			return
-		}
+		global.Logger.Error("获取流动性池异常")
+		global.Logger.Error(err.Error())
+		return
 	}
 	s.PoolInfo.UsdtBalance = poolUsdtBalance
 }
 
 func (s *DataService) Stop() {
 	s.ShutDown = true
+}
+
+/*
+1.现货没变，pool流动性正常，期货价格突变
+2.现货价格波动，流动性减少（非必须）
+*/
+func (s *DataService) CheckPosition() {
+
+	if s.BrPrice.Sub(s.BrFuturePrice).Div(s.BrPrice).GreaterThan(decimal.NewFromFloat(0.01)) {
+
+	}
 }

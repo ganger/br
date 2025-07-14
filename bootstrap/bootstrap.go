@@ -4,6 +4,7 @@ import (
 	"br-trade/conf"
 	"br-trade/constx"
 	"br-trade/global"
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -66,4 +68,23 @@ func InitBscClient() {
 
 	global.BinanceFuturesClient = binance.NewFuturesClient(global.Config.Binance.ReadApiKey, global.Config.Binance.ReadSecretKey)
 
+}
+
+func InitRedis() {
+
+	// 创建 Redis 客户端
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379", // Redis 地址
+		Password: "",               // 密码（如果没有密码则留空）
+		DB:       0,                // 默认数据库
+	})
+
+	// 测试连接
+	ctx := context.Background()
+	pong, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		panic(err)
+	}
+	global.RedisClient = rdb
+	fmt.Println("redis连接成功:", pong)
 }

@@ -7,12 +7,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
 	bootstrap.InitConfig()
 	bootstrap.InitLogger()
 	bootstrap.InitBscClient()
+	bootstrap.InitRedis()
 	//	bootstrap.InitDB()
 	svr := service.NewDataService()
 	svr.Run()
@@ -22,7 +24,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("shutdown server ...")
-	//time.Sleep(10 * time.Second)
+	time.Sleep(5 * time.Second)
 	svr.Stop()
 	log.Println("shutdown server done")
 }
