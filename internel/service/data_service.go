@@ -9,6 +9,23 @@ import (
 	"time"
 )
 
+type DataService struct {
+	BrPrice       decimal.Decimal
+	BrFuturePrice decimal.Decimal
+	PoolInfo      PoolInfo
+
+	ShutDown bool
+}
+
+type PoolInfo struct {
+	BrBalance   decimal.Decimal
+	UsdtBalance decimal.Decimal
+}
+
+func NewDataService() *DataService {
+	return &DataService{}
+}
+
 func (s *DataService) Run() {
 	s.Init()
 
@@ -62,23 +79,6 @@ func (s *DataService) Run() {
 	}
 }
 
-type DataService struct {
-	BrPrice       decimal.Decimal
-	BrFuturePrice decimal.Decimal
-	PoolInfo      PoolInfo
-
-	ShutDown bool
-}
-
-type PoolInfo struct {
-	BrBalance   decimal.Decimal
-	UsdtBalance decimal.Decimal
-}
-
-func NewDataService() *DataService {
-	return &DataService{}
-}
-
 func (s *DataService) Init() {
 	_, buy, _, err := data.GetFuturePrice(constx.BrFutureSymbol)
 	if err != nil {
@@ -118,44 +118,6 @@ func (s *DataService) PushWx() {
 	msg = msg + fmt.Sprintf("流动性总金额:%s\n", poolLiquidity.Round(6).String())
 	global.Logger.Info(msg)
 	//util.PushWX(global.Config.Wx.MessagePushUrl, msg)
-}
-
-func (s *DataService) RefreshBrPrice() {
-	price, err := data.GetTokenPriceFromBinance(constx.BrAddress)
-	if err != nil {
-		global.Logger.Error("获取现货价格异常")
-		global.Logger.Error(err.Error())
-		return
-	}
-	s.BrPrice = price
-}
-
-func (s *DataService) RefreshBrFuturePrice() {
-	_, buy, _, err := data.GetFuturePrice(constx.BrFutureSymbol)
-	if err != nil {
-		global.Logger.Error("获取期货价格异常")
-		global.Logger.Error(err.Error())
-		return
-	}
-	s.BrFuturePrice = buy
-}
-
-func (s *DataService) RefreshPoolInfo() {
-	poolBrBalance, err := data.GetTokenBalance(global.BscClient, constx.BrAddress, constx.BrPoolAddress)
-	if err != nil {
-		global.Logger.Error("获取流动性池异常")
-		global.Logger.Error(err.Error())
-		return
-	}
-	s.PoolInfo.BrBalance = poolBrBalance
-
-	poolUsdtBalance, err := data.GetTokenBalance(global.BscClient, constx.UsdtAddress, constx.BrPoolAddress)
-	if err != nil {
-		global.Logger.Error("获取流动性池异常")
-		global.Logger.Error(err.Error())
-		return
-	}
-	s.PoolInfo.UsdtBalance = poolUsdtBalance
 }
 
 func (s *DataService) Stop() {

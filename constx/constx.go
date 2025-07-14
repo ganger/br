@@ -10,3 +10,10 @@ const (
 
 	BrFutureSymbol = "BRUSDT"
 )
+
+const (
+	RedisKeyBrPrice       = "key:br_price"
+	RedisKeyBrFuturePrice = "key:br_future_price"
+	RedisKeyPoolBR        = "key:pool_br"
+	RedisKeyPoolUsdt      = "key:pool_usdt"
+)
