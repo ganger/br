@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 	"strconv"
 	"time"
@@ -21,6 +22,7 @@ func (s *DataService) SaveData(key string, value string, t time.Time) {
 	count, err := global.RedisClient.ZCount(ctx, key, scoreStr, scoreStr).Result()
 	if err != nil {
 		global.Logger.Error("redis save data error", zap.Error(err))
+		return
 	}
 	if count > 0 {
 		return
@@ -36,4 +38,25 @@ func (s *DataService) SaveData(key string, value string, t time.Time) {
 	minTime := float64(time.Now().Add(-24 * time.Hour).Unix())
 	global.RedisClient.ZRemRangeByScore(ctx, key, "0", fmt.Sprintf("%f", minTime))
 
+}
+
+func (s *DataService) GetData(key string) (decimal.Decimal, error) {
+	result, err := global.RedisClient.ZRange(context.Background(), key, 0, -1).Result()
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	sum := decimal.Zero
+	for _, v := range result {
+		data, e := decimal.NewFromString(v)
+		if e != nil {
+			global.Logger.Error("redis get data error", zap.Error(e))
+			continue
+		}
+		sum = sum.Add(data)
+	}
+
+	ave := sum.Div(decimal.NewFromInt(int64(len(result))))
+
+	return ave, nil
 }

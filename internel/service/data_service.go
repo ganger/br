@@ -110,10 +110,29 @@ func (s *DataService) Init() {
 func (s *DataService) PushWx() {
 
 	msg := fmt.Sprintf("BR期货价格:%s\n", s.BrFuturePrice.Round(6).String())
+	averageBrFuturePrice, err := s.GetData(constx.RedisKeyBrFuturePrice)
+	if err == nil {
+		msg = msg + fmt.Sprintf("BR期货平均价格:%s\n", averageBrFuturePrice.Round(6).String())
+	}
+
 	msg = msg + fmt.Sprintf("BR现货价格:%s\n", s.BrPrice.Round(6).String())
+	averageBrPrice, err := s.GetData(constx.RedisKeyBrPrice)
+	if err == nil {
+		msg = msg + fmt.Sprintf("BR现货平均价格:%s\n", averageBrPrice.Round(6).String())
+	}
 
 	msg = msg + fmt.Sprintf("流动性池子BR余额:%s\n", s.PoolInfo.BrBalance.Round(6).String())
+	averagePoolBr, err := s.GetData(constx.RedisKeyPoolBR)
+	if err == nil {
+		msg = msg + fmt.Sprintf("BR池子平均数量:%s\n", averagePoolBr.Round(6).String())
+	}
+
 	msg = msg + fmt.Sprintf("流动性池子USDT余额:%s\n", s.PoolInfo.UsdtBalance.Round(6).String())
+	averagePoolUsdt, err := s.GetData(constx.RedisKeyPoolUsdt)
+	if err == nil {
+		msg = msg + fmt.Sprintf("USDT池子平均数量:%s\n", averagePoolUsdt.Round(6).String())
+	}
+
 	poolLiquidity := s.PoolInfo.BrBalance.Mul(s.BrPrice).Add(s.PoolInfo.UsdtBalance)
 	msg = msg + fmt.Sprintf("流动性总金额:%s\n", poolLiquidity.Round(6).String())
 	global.Logger.Info(msg)
