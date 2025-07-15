@@ -43,6 +43,7 @@ func (s *DataService) SaveData(key string, value string, t time.Time) {
 func (s *DataService) GetData(key string) (decimal.Decimal, error) {
 	result, err := global.RedisClient.ZRange(context.Background(), key, 0, -1).Result()
 	if err != nil {
+		global.Logger.Error("redis get data error", zap.Error(err))
 		return decimal.Zero, err
 	}
 

@@ -121,6 +121,14 @@ func (s *DataService) PushWx() {
 		msg = msg + fmt.Sprintf("BR现货平均价格:%s\n", averageBrPrice.Round(6).String())
 	}
 
+	basisPct := s.GetBasisPct()
+	msg = msg + fmt.Sprintf("期现差价:%s%%\n", basisPct.Mul(decimal.NewFromInt(100)).Round(4).String())
+
+	pct, err := s.GetPriceToAvgSpreadPct()
+	if err == nil {
+		msg = msg + fmt.Sprintf("现货与均价偏差:%s%%\n", pct.Mul(decimal.NewFromInt(100)).Round(4).String())
+	}
+
 	msg = msg + fmt.Sprintf("流动性池子BR余额:%sM\n",
 		s.PoolInfo.BrBalance.Div(decimal.NewFromInt(1000000)).Round(2).String())
 	averagePoolBr, err := s.GetData(constx.RedisKeyPoolBR)

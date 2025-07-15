@@ -5,6 +5,7 @@ import (
 	"br-trade/global"
 	"br-trade/internel/data"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
@@ -51,4 +52,19 @@ func (s *DataService) RefreshPoolInfo() {
 
 	s.SaveData(constx.RedisKeyPoolBR, fmt.Sprintf("%s", s.PoolInfo.BrBalance.String()), time.Now())
 	s.SaveData(constx.RedisKeyPoolUsdt, fmt.Sprintf("%s", s.PoolInfo.UsdtBalance.String()), time.Now())
+}
+
+// 期现价差
+func (s *DataService) GetBasisPct() decimal.Decimal {
+	return s.BrFuturePrice.Sub(s.BrPrice).Div(s.BrPrice)
+}
+
+// 现货与均价的差
+func (s *DataService) GetPriceToAvgSpreadPct() (decimal.Decimal, error) {
+	avePrice, err := s.GetData(constx.RedisKeyBrPrice)
+	if err != nil {
+		global.Logger.Error(err.Error())
+		return decimal.Zero, err
+	}
+	return s.BrPrice.Sub(avePrice).Div(avePrice), nil
 }
