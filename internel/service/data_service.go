@@ -162,7 +162,33 @@ func (s *DataService) Stop() {
 */
 func (s *DataService) CheckPosition() {
 
-	if s.BrPrice.Sub(s.BrFuturePrice).Div(s.BrPrice).GreaterThan(decimal.NewFromFloat(0.01)) {
+	for {
+		if s.ShutDown {
+			return
+		}
+		priceToAvgSpreadPct, err := s.GetPriceToAvgSpreadPct()
+		if err != nil {
+			global.Logger.Error(err.Error())
+			continue
+		}
 
+		//现货涨幅超过1%
+		if priceToAvgSpreadPct.GreaterThanOrEqual(decimal.NewFromFloat(0.01)) {
+			//池子br数量降低
+			isPoolLow := s.GetBrPoolBalanceLow()
+			if isPoolLow {
+				//现货准备上涨，开仓
+			}
+		}
+
+		//现货跌幅超过1%
+		if priceToAvgSpreadPct.LessThanOrEqual(decimal.NewFromFloat(-0.01)) {
+			//池子usdt数量降低
+			isPoolLow := s.GetUsdtPoolBalanceLow()
+			if isPoolLow {
+				//现货准备下跌，开仓
+			}
+		}
 	}
+
 }

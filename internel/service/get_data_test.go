@@ -26,7 +26,7 @@ func TestGetPriceToAvgSpreadPct(t *testing.T) {
 func TestGetBrPoolBalanceLow(t *testing.T) {
 	s := NewDataService()
 
-	s.PoolInfo.BrBalance = decimal.NewFromInt(2000)
+	s.PoolInfo.BrBalance = decimal.NewFromInt(3001)
 	avgBalance := decimal.NewFromInt(10000)
 	result := s.getBrPoolBalanceLow(avgBalance)
 	fmt.Println(result)
