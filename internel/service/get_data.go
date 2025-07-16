@@ -66,5 +66,51 @@ func (s *DataService) GetPriceToAvgSpreadPct() (decimal.Decimal, error) {
 		global.Logger.Error(err.Error())
 		return decimal.Zero, err
 	}
-	return s.BrPrice.Sub(avePrice).Div(avePrice), nil
+	return s.getPriceToAvgSpreadPct(avePrice), nil
+}
+
+func (s *DataService) getPriceToAvgSpreadPct(avePrice decimal.Decimal) decimal.Decimal {
+	return s.BrPrice.Sub(avePrice).Div(avePrice)
+}
+
+func (s *DataService) GetBrPoolBalanceLow() bool {
+	aveBr, err := s.GetData(constx.RedisKeyPoolBR)
+	if err != nil {
+		global.Logger.Error(err.Error())
+		return false
+	}
+
+	return s.getBrPoolBalanceLow(aveBr)
+}
+
+func (s *DataService) getBrPoolBalanceLow(aveBr decimal.Decimal) bool {
+
+	rate := s.PoolInfo.BrBalance.Sub(aveBr).Div(aveBr)
+
+	if rate.LessThanOrEqual(decimal.NewFromFloat(-0.7)) {
+		return true
+	}
+
+	return false
+}
+
+func (s *DataService) GetUsdtPoolBalanceLow() bool {
+	aveUsdt, err := s.GetData(constx.RedisKeyPoolUsdt)
+	if err != nil {
+		global.Logger.Error(err.Error())
+		return false
+	}
+
+	return s.getUsdtPoolBalanceLow(aveUsdt)
+}
+
+func (s *DataService) getUsdtPoolBalanceLow(aveUsdt decimal.Decimal) bool {
+
+	rate := s.PoolInfo.UsdtBalance.Sub(aveUsdt).Div(aveUsdt)
+
+	if rate.LessThanOrEqual(decimal.NewFromFloat(-0.7)) {
+		return true
+	}
+
+	return false
 }
