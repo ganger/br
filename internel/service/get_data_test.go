@@ -50,10 +50,8 @@ func TestCreateOrder(t *testing.T) {
 
 	bootstrap.InitLogger()
 	s := NewDataService()
-	s.AvgBrPrice = decimal.NewFromFloat(0.0716)
+	s.AvgBrPrice = decimal.NewFromFloat(0.01)
 	s.CreateOrder(futures.SideTypeBuy)
-	fmt.Println("=============")
-	s.CreateOrder(futures.SideTypeSell)
 }
 
 func TestBinanceOrder(t *testing.T) {

@@ -4,6 +4,7 @@ import (
 	"br-trade/constx"
 	"br-trade/global"
 	"br-trade/internel/data"
+	"context"
 	"fmt"
 	"github.com/adshao/go-binance/v2/futures"
 	"github.com/shopspring/decimal"
@@ -212,18 +213,18 @@ func (s *DataService) CreateOrder(dir futures.SideType) {
 	for _, price := range priceList {
 
 		quantity := decimal.NewFromInt(4999).Div(price).Round(0)
-		/*
-			_,err := global.BinanceFuturesClient.NewCreateOrderService().
-				Symbol(constx.BrFutureSymbol).
-				Side(dir).
-				Type(futures.OrderTypeLimit).
-				TimeInForce(binance.TimeInForceTypeGTC).
-				Price(price.Round(5).String()).
-				Quantity(quantity.String()).
-				Do(context.Background())
-			if err != nil {
-				global.Logger.Error(err.Error())
-			}*/
+		_, err := global.BinanceFuturesClient.NewCreateOrderService().
+			Symbol(constx.BrFutureSymbol).
+			Side(dir).
+			Type(futures.OrderTypeLimit).
+			TimeInForce(futures.TimeInForceTypeGTC).
+			Price(price.Round(5).String()).
+			Quantity(quantity.String()).
+			Do(context.Background())
+		if err != nil {
+			global.Logger.Error(err.Error())
+			continue
+		}
 		global.Logger.Info("下单成功",
 			zap.String("价格", price.Round(5).String()),
 			zap.String("数量", quantity.String()),
