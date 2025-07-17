@@ -3,6 +3,7 @@ package service
 import (
 	"br-trade/constx"
 	"br-trade/global"
+	"br-trade/internel/util"
 	"context"
 	"fmt"
 	"github.com/adshao/go-binance/v2/futures"
@@ -18,6 +19,8 @@ type DataService struct {
 	AvgBrFuturePrice decimal.Decimal
 	PoolInfo         PoolInfo
 
+	hasCreateOrder bool
+
 	ShutDown bool
 }
 
@@ -29,7 +32,9 @@ type PoolInfo struct {
 }
 
 func NewDataService() *DataService {
-	return &DataService{}
+	return &DataService{
+		hasCreateOrder: false,
+	}
 }
 
 func (s *DataService) Run() {
@@ -138,8 +143,13 @@ func (s *DataService) PushWx() {
 	poolLiquidity := s.PoolInfo.BrBalance.Mul(s.BrPrice).Add(s.PoolInfo.UsdtBalance)
 	msg = msg + fmt.Sprintf("流动性总金额:%sM\n",
 		poolLiquidity.Div(decimal.NewFromInt(1000000)).Round(2).String())
+
+	if s.hasCreateOrder {
+		msg = msg + "订单已创建，不再创建订单"
+	}
+
 	global.Logger.Info(msg)
-	//util.PushWX(global.Config.Wx.MessagePushUrl, msg)
+	util.PushWX(global.Config.Wx.MessagePushUrl, msg)
 }
 
 func (s *DataService) Stop() {
@@ -181,6 +191,10 @@ func (s *DataService) CreateOrder(dir futures.SideType) {
 		global.Logger.Info("非prd，不下单")
 		return
 	}
+
+	if s.hasCreateOrder {
+		return
+	}
 	price0 := s.AvgBrPrice.Mul(decimal.NewFromFloat(0.96))
 	price1 := s.AvgBrPrice.Mul(decimal.NewFromFloat(0.98))
 	price2 := s.AvgBrPrice
@@ -213,5 +227,5 @@ func (s *DataService) CreateOrder(dir futures.SideType) {
 			zap.String("总价", price.Round(5).Mul(quantity).String()),
 		)
 	}
-
+	s.hasCreateOrder = true
 }
