@@ -64,6 +64,7 @@ func TestBinanceOrder(t *testing.T) {
 		Symbol(constx.BrFutureSymbol).
 		Side(futures.SideTypeBuy).
 		Type(futures.OrderTypeLimit).
+		TimeInForce(futures.TimeInForceTypeGTC).
 		Price("0.001").
 		Quantity("100").
 		Do(context.Background())

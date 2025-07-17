@@ -217,6 +217,7 @@ func (s *DataService) CreateOrder(dir futures.SideType) {
 				Symbol(constx.BrFutureSymbol).
 				Side(dir).
 				Type(futures.OrderTypeLimit).
+				TimeInForce(binance.TimeInForceTypeGTC).
 				Price(price.Round(5).String()).
 				Quantity(quantity.String()).
 				Do(context.Background())
