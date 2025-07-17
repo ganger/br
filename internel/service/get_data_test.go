@@ -57,7 +57,9 @@ func TestCreateOrder(t *testing.T) {
 }
 
 func TestBinanceOrder(t *testing.T) {
+	bootstrap.InitConfig()
 	bootstrap.InitBscClient()
+	bootstrap.InitLogger()
 	_, err := global.BinanceFuturesClient.NewCreateOrderService().
 		Symbol(constx.BrFutureSymbol).
 		Side(futures.SideTypeBuy).
