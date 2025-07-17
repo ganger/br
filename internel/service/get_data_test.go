@@ -66,7 +66,7 @@ func TestBinanceOrder(t *testing.T) {
 		Type(futures.OrderTypeLimit).
 		TimeInForce(futures.TimeInForceTypeGTC).
 		Price("0.001").
-		Quantity("100").
+		Quantity("10000").
 		Do(context.Background())
 	if err != nil {
 		global.Logger.Error(err.Error())
