@@ -3,7 +3,6 @@ package service
 import (
 	"br-trade/constx"
 	"br-trade/global"
-	"br-trade/internel/data"
 	"context"
 	"fmt"
 	"github.com/adshao/go-binance/v2/futures"
@@ -79,40 +78,21 @@ func (s *DataService) Run() {
 
 	go func() {
 		for {
+			time.Sleep(1 * time.Hour)
 			if s.ShutDown {
 				break
 			}
 			s.PushWx()
-			time.Sleep(1 * time.Hour)
 		}
 	}()
 
 }
 
 func (s *DataService) Init() {
-	_, buy, _, err := data.GetFuturePrice(constx.BrFutureSymbol)
-	if err != nil {
-		panic(err)
-	}
-	s.BrFuturePrice = buy
+	s.RefreshBrPrice()
+	s.RefreshBrFuturePrice()
+	s.RefreshPoolInfo()
 
-	price, err := data.GetTokenPriceFromBinance(constx.BrAddress)
-	if err != nil {
-		panic(err)
-	}
-	s.BrPrice = price
-
-	poolBrBalance, err := data.GetTokenBalance(global.BscClient, constx.BrAddress, constx.BrPoolAddress)
-	if err != nil {
-		panic(err)
-	}
-	s.PoolInfo.BrBalance = poolBrBalance
-
-	poolUsdtBalance, err := data.GetTokenBalance(global.BscClient, constx.UsdtAddress, constx.BrPoolAddress)
-	if err != nil {
-		panic(err)
-	}
-	s.PoolInfo.UsdtBalance = poolUsdtBalance
 	s.PushWx()
 	global.Logger.Info("服务启动成功")
 }
