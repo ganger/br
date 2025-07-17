@@ -1,7 +1,12 @@
 package service
 
 import (
+	"br-trade/bootstrap"
+	"br-trade/constx"
+	"br-trade/global"
+	"context"
 	"fmt"
+	"github.com/adshao/go-binance/v2/futures"
 	"github.com/shopspring/decimal"
 	"testing"
 )
@@ -18,8 +23,8 @@ func TestGetPriceToAvgSpreadPct(t *testing.T) {
 	s := NewDataService()
 
 	s.BrPrice = decimal.NewFromFloat(0.11)
-	avgPrice := decimal.NewFromFloat(0.1)
-	result := s.getPriceToAvgSpreadPct(avgPrice)
+	s.AvgBrPrice = decimal.NewFromFloat(0.1)
+	result := s.GetPriceToAvgSpreadPct()
 	fmt.Println(result)
 }
 
@@ -27,16 +32,41 @@ func TestGetBrPoolBalanceLow(t *testing.T) {
 	s := NewDataService()
 
 	s.PoolInfo.BrBalance = decimal.NewFromInt(3001)
-	avgBalance := decimal.NewFromInt(10000)
-	result := s.getBrPoolBalanceLow(avgBalance)
+	s.PoolInfo.AvgBrBalance = decimal.NewFromInt(10000)
+	result := s.GetBrPoolBalanceLow()
 	fmt.Println(result)
 }
 
 func TestGetUsdtPoolBalanceLow(t *testing.T) {
 	s := NewDataService()
 
-	s.PoolInfo.UsdtBalance = decimal.NewFromInt(3001)
-	avgBalance := decimal.NewFromInt(10000)
-	result := s.getUsdtPoolBalanceLow(avgBalance)
+	s.PoolInfo.UsdtBalance = decimal.NewFromInt(3000)
+	s.PoolInfo.AvgUsdtBalance = decimal.NewFromInt(10000)
+	result := s.GetUsdtPoolBalanceLow()
 	fmt.Println(result)
+}
+
+func TestCreateOrder(t *testing.T) {
+
+	bootstrap.InitLogger()
+	s := NewDataService()
+	s.AvgBrPrice = decimal.NewFromFloat(0.0716)
+	s.CreateOrder(futures.SideTypeBuy)
+	fmt.Println("=============")
+	s.CreateOrder(futures.SideTypeSell)
+}
+
+func TestBinanceOrder(t *testing.T) {
+	bootstrap.InitBscClient()
+	_, err := global.BinanceFuturesClient.NewCreateOrderService().
+		Symbol(constx.BrFutureSymbol).
+		Side(futures.SideTypeBuy).
+		Type(futures.OrderTypeLimit).
+		Price("0.001").
+		Quantity("100").
+		Do(context.Background())
+	if err != nil {
+		global.Logger.Error(err.Error())
+	}
+	fmt.Println("success")
 }

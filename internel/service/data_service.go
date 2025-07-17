@@ -5,21 +5,27 @@ import (
 	"br-trade/global"
 	"br-trade/internel/data"
 	"fmt"
+	"github.com/adshao/go-binance/v2/futures"
 	"github.com/shopspring/decimal"
+	"go.uber.org/zap"
 	"time"
 )
 
 type DataService struct {
-	BrPrice       decimal.Decimal
-	BrFuturePrice decimal.Decimal
-	PoolInfo      PoolInfo
+	BrPrice          decimal.Decimal
+	AvgBrPrice       decimal.Decimal
+	BrFuturePrice    decimal.Decimal
+	AvgBrFuturePrice decimal.Decimal
+	PoolInfo         PoolInfo
 
 	ShutDown bool
 }
 
 type PoolInfo struct {
-	BrBalance   decimal.Decimal
-	UsdtBalance decimal.Decimal
+	BrBalance      decimal.Decimal
+	AvgBrBalance   decimal.Decimal
+	UsdtBalance    decimal.Decimal
+	AvgUsdtBalance decimal.Decimal
 }
 
 func NewDataService() *DataService {
@@ -124,7 +130,7 @@ func (s *DataService) PushWx() {
 	basisPct := s.GetBasisPct()
 	msg = msg + fmt.Sprintf("期现差价:%s%%\n", basisPct.Mul(decimal.NewFromInt(100)).Round(4).String())
 
-	pct, err := s.GetPriceToAvgSpreadPct()
+	pct := s.GetPriceToAvgSpreadPct()
 	if err == nil {
 		msg = msg + fmt.Sprintf("现货与均价偏差:%s%%\n", pct.Mul(decimal.NewFromInt(100)).Round(4).String())
 	}
@@ -166,11 +172,7 @@ func (s *DataService) CheckPosition() {
 		if s.ShutDown {
 			return
 		}
-		priceToAvgSpreadPct, err := s.GetPriceToAvgSpreadPct()
-		if err != nil {
-			global.Logger.Error(err.Error())
-			continue
-		}
+		priceToAvgSpreadPct := s.GetPriceToAvgSpreadPct()
 
 		//现货涨幅超过1%
 		if priceToAvgSpreadPct.GreaterThanOrEqual(decimal.NewFromFloat(0.01)) {
@@ -178,6 +180,7 @@ func (s *DataService) CheckPosition() {
 			isPoolLow := s.GetBrPoolBalanceLow()
 			if isPoolLow {
 				//现货准备上涨，开仓
+
 			}
 		}
 
@@ -189,6 +192,42 @@ func (s *DataService) CheckPosition() {
 				//现货准备下跌，开仓
 			}
 		}
+	}
+
+}
+
+func (s *DataService) CreateOrder(dir futures.SideType) {
+
+	price0 := s.AvgBrPrice.Mul(decimal.NewFromFloat(0.96))
+	price1 := s.AvgBrPrice.Mul(decimal.NewFromFloat(0.98))
+	price2 := s.AvgBrPrice
+	price3 := s.AvgBrPrice.Mul(decimal.NewFromFloat(1.02))
+	price4 := s.AvgBrPrice.Mul(decimal.NewFromFloat(1.04))
+
+	priceList := []decimal.Decimal{price0, price1, price2, price3, price4}
+	if dir == futures.SideTypeSell {
+		priceList = []decimal.Decimal{price4, price3, price2, price1, price0}
+	}
+
+	for _, price := range priceList {
+
+		quantity := decimal.NewFromInt(4999).Div(price).Round(0)
+		/*
+			_,err := global.BinanceFuturesClient.NewCreateOrderService().
+				Symbol(constx.BrFutureSymbol).
+				Side(dir).
+				Type(futures.OrderTypeLimit).
+				Price(price.Round(5).String()).
+				Quantity(quantity.String()).
+				Do(context.Background())
+			if err != nil {
+				global.Logger.Error(err.Error())
+			}*/
+		global.Logger.Info("下单成功",
+			zap.String("价格", price.Round(5).String()),
+			zap.String("数量", quantity.String()),
+			zap.String("总价", price.Round(5).Mul(quantity).String()),
+		)
 	}
 
 }

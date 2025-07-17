@@ -2,8 +2,8 @@ package conf
 
 type Config struct {
 	Binance struct {
-		ReadApiKey    string `yaml:"readApiKey"`
-		ReadSecretKey string `yaml:"readSecretKey"`
+		ApiKey    string `yaml:"ApiKey"`
+		SecretKey string `yaml:"SecretKey"`
 	} `yaml:"binance"`
 	Wx struct {
 		MessagePushUrl string `yaml:"messagePushUrl"`
