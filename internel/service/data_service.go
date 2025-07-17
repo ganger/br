@@ -39,7 +39,7 @@ func (s *DataService) Run() {
 	go func() {
 		for {
 			if s.ShutDown {
-				return
+				break
 			}
 			s.RefreshBrPrice()
 			time.Sleep(1 * time.Second)
@@ -49,7 +49,7 @@ func (s *DataService) Run() {
 	go func() {
 		for {
 			if s.ShutDown {
-				return
+				break
 			}
 			s.RefreshBrFuturePrice()
 			time.Sleep(1 * time.Second)
@@ -60,7 +60,7 @@ func (s *DataService) Run() {
 	go func() {
 		for {
 			if s.ShutDown {
-				return
+				break
 			}
 			s.RefreshPoolInfo()
 			time.Sleep(2 * time.Second)
@@ -70,20 +70,23 @@ func (s *DataService) Run() {
 	go func() {
 		for {
 			if s.ShutDown {
-				return
+				break
+			}
+			s.CheckPosition()
+			time.Sleep(200 * time.Millisecond)
+		}
+	}()
+
+	go func() {
+		for {
+			if s.ShutDown {
+				break
 			}
 			s.PushWx()
 			time.Sleep(1 * time.Hour)
 		}
 	}()
 
-	for {
-
-		if s.ShutDown {
-			return
-		}
-		time.Sleep(1 * time.Second)
-	}
 }
 
 func (s *DataService) Init() {
@@ -169,36 +172,35 @@ func (s *DataService) Stop() {
 */
 func (s *DataService) CheckPosition() {
 
-	for {
-		if s.ShutDown {
-			return
-		}
-		priceToAvgSpreadPct := s.GetPriceToAvgSpreadPct()
+	priceToAvgSpreadPct := s.GetPriceToAvgSpreadPct()
 
-		//现货涨幅超过1%
-		if priceToAvgSpreadPct.GreaterThanOrEqual(decimal.NewFromFloat(0.01)) {
-			//池子br数量降低
-			isPoolLow := s.GetBrPoolBalanceLow()
-			if isPoolLow {
-				//现货准备上涨，开仓
-
-			}
-		}
-
-		//现货跌幅超过1%
-		if priceToAvgSpreadPct.LessThanOrEqual(decimal.NewFromFloat(-0.01)) {
-			//池子usdt数量降低
-			isPoolLow := s.GetUsdtPoolBalanceLow()
-			if isPoolLow {
-				//现货准备下跌，开仓
-			}
+	//现货涨幅超过1%
+	if priceToAvgSpreadPct.GreaterThanOrEqual(decimal.NewFromFloat(0.01)) {
+		//池子br数量降低
+		isPoolLow := s.GetBrPoolBalanceLow()
+		if isPoolLow {
+			//现货准备上涨，开仓
+			s.CreateOrder(futures.SideTypeBuy)
 		}
 	}
 
+	//现货跌幅超过1%
+	if priceToAvgSpreadPct.LessThanOrEqual(decimal.NewFromFloat(-0.01)) {
+		//池子usdt数量降低
+		isPoolLow := s.GetUsdtPoolBalanceLow()
+		if isPoolLow {
+			//现货准备下跌，开仓
+			s.CreateOrder(futures.SideTypeSell)
+		}
+	}
 }
 
 func (s *DataService) CreateOrder(dir futures.SideType) {
 
+	if !global.Config.App.IsPrd {
+		global.Logger.Info("非prd，不下单")
+		return
+	}
 	price0 := s.AvgBrPrice.Mul(decimal.NewFromFloat(0.96))
 	price1 := s.AvgBrPrice.Mul(decimal.NewFromFloat(0.98))
 	price2 := s.AvgBrPrice
