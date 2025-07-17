@@ -47,7 +47,8 @@ func TestGetUsdtPoolBalanceLow(t *testing.T) {
 }
 
 func TestCreateOrder(t *testing.T) {
-
+	bootstrap.InitConfig()
+	bootstrap.InitBscClient()
 	bootstrap.InitLogger()
 	s := NewDataService()
 	s.AvgBrPrice = decimal.NewFromFloat(0.01)
