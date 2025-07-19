@@ -30,10 +30,11 @@ func CalculateMargin(amount decimal.Decimal, leverage int64) (initialMargin, mai
 	return
 }
 
-func CalculateLiquidationPrice(entryPrice, amount decimal.Decimal, leverage int64) (liquidationPrice, down decimal.Decimal) {
+func CalculateLiquidationPrice(entryPrice, amount decimal.Decimal, leverage int64) (liquidationPriceDown, liquidationPriceUp, down decimal.Decimal) {
 	initialMargin, maintenanceMargin := CalculateMargin(amount, leverage)
 	loss := initialMargin.Sub(maintenanceMargin)
 	down = loss.Div(amount)
-	liquidationPrice = entryPrice.Mul(decimal.NewFromInt(1).Sub(down))
+	liquidationPriceDown = entryPrice.Mul(decimal.NewFromInt(1).Sub(down))
+	liquidationPriceUp = entryPrice.Mul(decimal.NewFromInt(1).Add(down))
 	return
 }

@@ -22,7 +22,8 @@ func TestGetTokenPrice(t *testing.T) {
 func TestCalculateLiquidationPrice(t *testing.T) {
 	amount := int64(25000)
 	entryPrice := decimal.NewFromFloat(0.1)
-	liquidationPrice, down := CalculateLiquidationPrice(entryPrice, decimal.NewFromInt(amount), 10)
-	fmt.Println("liquidationPrice:", liquidationPrice)
+	liquidationPriceDown, liquidationPriceUp, down := CalculateLiquidationPrice(entryPrice, decimal.NewFromInt(amount), 10)
+	fmt.Println("liquidationPriceDown:", liquidationPriceDown)
+	fmt.Println("liquidationPriceUp:", liquidationPriceUp)
 	fmt.Println("down:", down)
 }

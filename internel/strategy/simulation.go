@@ -16,7 +16,7 @@ func Simulation(basePrice, currentPrice decimal.Decimal, positions []Position) (
 			fmt.Println("未达价格，未成交")
 			continue
 		}
-		liquidationPrice, _ := CalculateLiquidationPrice(entryPrice, position.Amount, position.Leverage)
+		liquidationPrice, _, _ := CalculateLiquidationPrice(entryPrice, position.Amount, position.Leverage)
 		if liquidationPrice.GreaterThan(currentPrice) {
 			loss = loss.Add(position.Amount.Div(decimal.NewFromInt(position.Leverage)))
 			fmt.Println("爆仓，总损失:", loss, " 爆仓价格:", liquidationPrice)

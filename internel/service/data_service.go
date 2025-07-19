@@ -3,6 +3,7 @@ package service
 import (
 	"br-trade/constx"
 	"br-trade/global"
+	"br-trade/internel/strategy"
 	"br-trade/internel/util"
 	"context"
 	"fmt"
@@ -227,5 +228,34 @@ func (s *DataService) CreateOrder(dir futures.SideType) {
 			zap.String("总价", price.Round(5).Mul(quantity).String()),
 		)
 	}
+
 	s.hasCreateOrder = true
+}
+
+func (s *DataService) CreateOrder2(dir futures.SideType) {
+	liqPriceDown, liqPriceUp, _ := strategy.CalculateLiquidationPrice(s.AvgBrPrice, decimal.NewFromInt(25000), 10)
+
+	price := liqPriceDown
+	if dir == futures.SideTypeSell {
+		price = liqPriceUp
+	}
+
+	quantity := decimal.NewFromInt(24990).Div(price).Round(0)
+	_, err := global.BinanceFuturesClient.NewCreateOrderService().
+		Symbol(constx.BrFutureSymbol).
+		Side(dir).
+		Type(futures.OrderTypeLimit).
+		TimeInForce(futures.TimeInForceTypeGTC).
+		Price(price.Round(5).String()).
+		Quantity(quantity.String()).
+		Do(context.Background())
+	if err != nil {
+		global.Logger.Error(err.Error())
+		return
+	}
+	global.Logger.Info("账户2下单成功",
+		zap.String("价格", price.Round(5).String()),
+		zap.String("数量", quantity.String()),
+		zap.String("总价", price.Round(5).Mul(quantity).String()),
+	)
 }

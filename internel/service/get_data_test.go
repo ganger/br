@@ -55,6 +55,17 @@ func TestCreateOrder(t *testing.T) {
 	s.CreateOrder(futures.SideTypeBuy)
 }
 
+func TestCreateOrder2(t *testing.T) {
+	bootstrap.InitConfig()
+	bootstrap.InitBscClient()
+	bootstrap.InitLogger()
+	s := NewDataService()
+	s.AvgBrPrice = decimal.NewFromFloat(0.071633)
+	s.CreateOrder2(futures.SideTypeBuy)
+	fmt.Println("===")
+	s.CreateOrder2(futures.SideTypeSell)
+}
+
 func TestBinanceOrder(t *testing.T) {
 	bootstrap.InitConfig()
 	bootstrap.InitBscClient()
