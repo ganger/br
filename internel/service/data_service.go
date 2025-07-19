@@ -228,6 +228,7 @@ func (s *DataService) CreateOrder(dir futures.SideType) {
 			zap.String("总价", price.Round(5).Mul(quantity).String()),
 		)
 	}
+	s.CreateOrder2(dir)
 
 	s.hasCreateOrder = true
 }
