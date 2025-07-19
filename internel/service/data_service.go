@@ -240,27 +240,30 @@ func (s *DataService) CreateOrder2(dir futures.SideType) {
 		price = liqPriceUp
 	}
 
-	quantity := decimal.NewFromInt(19990).Div(price).Round(0)
-	_, err := global.BinanceFuturesClient.NewCreateOrderService().
-		Symbol(constx.BrFutureSymbol).
-		Side(dir).
-		Type(futures.OrderTypeLimit).
-		TimeInForce(futures.TimeInForceTypeGTC).
-		Price(price.Round(5).String()).
-		Quantity(quantity.String()).
-		Do(context.Background())
-	if err != nil {
-		global.Logger.Error(err.Error())
-		global.Logger.Info("账户2下单失败",
+	for i := 0; i < 5; i++ {
+		quantity := decimal.NewFromInt(4999).Div(price).Round(0)
+		price = price.Add(decimal.NewFromFloat(0.00001))
+		_, err := global.BinanceFuturesClient.NewCreateOrderService().
+			Symbol(constx.BrFutureSymbol).
+			Side(dir).
+			Type(futures.OrderTypeLimit).
+			TimeInForce(futures.TimeInForceTypeGTC).
+			Price(price.Round(5).String()).
+			Quantity(quantity.String()).
+			Do(context.Background())
+		if err != nil {
+			global.Logger.Error(err.Error())
+			global.Logger.Info("账户2下单失败",
+				zap.String("价格", price.Round(5).String()),
+				zap.String("数量", quantity.String()),
+				zap.String("总价", price.Round(5).Mul(quantity).String()),
+			)
+			return
+		}
+		global.Logger.Info("账户2下单成功",
 			zap.String("价格", price.Round(5).String()),
 			zap.String("数量", quantity.String()),
 			zap.String("总价", price.Round(5).Mul(quantity).String()),
 		)
-		return
 	}
-	global.Logger.Info("账户2下单成功",
-		zap.String("价格", price.Round(5).String()),
-		zap.String("数量", quantity.String()),
-		zap.String("总价", price.Round(5).Mul(quantity).String()),
-	)
 }
