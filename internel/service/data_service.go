@@ -240,7 +240,7 @@ func (s *DataService) CreateOrder2(dir futures.SideType) {
 		price = liqPriceUp
 	}
 
-	quantity := decimal.NewFromInt(24900).Div(price).Round(0)
+	quantity := decimal.NewFromInt(19999).Div(price).Round(0)
 	_, err := global.BinanceFuturesClient.NewCreateOrderService().
 		Symbol(constx.BrFutureSymbol).
 		Side(dir).
