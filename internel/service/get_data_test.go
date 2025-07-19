@@ -51,7 +51,7 @@ func TestCreateOrder(t *testing.T) {
 	bootstrap.InitBscClient()
 	bootstrap.InitLogger()
 	s := NewDataService()
-	s.AvgBrPrice = decimal.NewFromFloat(0.01)
+	s.AvgBrPrice = decimal.NewFromFloat(0.071633)
 	s.CreateOrder(futures.SideTypeBuy)
 }
 

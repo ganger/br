@@ -243,7 +243,7 @@ func (s *DataService) CreateOrder2(dir futures.SideType) {
 	for i := 0; i < 5; i++ {
 		quantity := decimal.NewFromInt(4990).Div(price).Round(0)
 		price = price.Add(decimal.NewFromFloat(0.00001))
-		_, err := global.BinanceFuturesClient.NewCreateOrderService().
+		_, err := global.BinanceFuturesClient2.NewCreateOrderService().
 			Symbol(constx.BrFutureSymbol).
 			Side(dir).
 			Type(futures.OrderTypeLimit).
