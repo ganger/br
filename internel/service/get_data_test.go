@@ -63,7 +63,7 @@ func TestCreateOrder2(t *testing.T) {
 	s.AvgBrPrice = decimal.NewFromFloat(0.071633)
 	s.CreateOrder2(futures.SideTypeBuy)
 	fmt.Println("===")
-	s.CreateOrder2(futures.SideTypeSell)
+	//	s.CreateOrder2(futures.SideTypeSell)
 }
 
 func TestBinanceOrder(t *testing.T) {

@@ -251,6 +251,11 @@ func (s *DataService) CreateOrder2(dir futures.SideType) {
 		Do(context.Background())
 	if err != nil {
 		global.Logger.Error(err.Error())
+		global.Logger.Info("账户2下单失败",
+			zap.String("价格", price.Round(5).String()),
+			zap.String("数量", quantity.String()),
+			zap.String("总价", price.Round(5).Mul(quantity).String()),
+		)
 		return
 	}
 	global.Logger.Info("账户2下单成功",
