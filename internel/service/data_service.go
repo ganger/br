@@ -241,7 +241,7 @@ func (s *DataService) CreateOrder2(dir futures.SideType) {
 	}
 
 	for i := 0; i < 5; i++ {
-		quantity := decimal.NewFromInt(4999).Div(price).Round(0)
+		quantity := decimal.NewFromInt(4990).Div(price).Round(0)
 		price = price.Add(decimal.NewFromFloat(0.00001))
 		_, err := global.BinanceFuturesClient.NewCreateOrderService().
 			Symbol(constx.BrFutureSymbol).
@@ -258,7 +258,7 @@ func (s *DataService) CreateOrder2(dir futures.SideType) {
 				zap.String("数量", quantity.String()),
 				zap.String("总价", price.Round(5).Mul(quantity).String()),
 			)
-			return
+			continue
 		}
 		global.Logger.Info("账户2下单成功",
 			zap.String("价格", price.Round(5).String()),
