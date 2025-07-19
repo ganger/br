@@ -67,6 +67,7 @@ func InitBscClient() {
 	global.BscClient = client
 
 	global.BinanceFuturesClient = binance.NewFuturesClient(global.Config.Binance.ApiKey, global.Config.Binance.SecretKey)
+	global.BinanceFuturesClient2 = binance.NewFuturesClient(global.Config.Binance.ApiKey2, global.Config.Binance.SecretKey2)
 
 }
 

@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	Config               conf.Config
-	Logger               *zap.Logger
-	DB                   *gorm.DB
-	BscClient            *ethclient.Client
-	BinanceFuturesClient *futures.Client
-	RedisClient          *redis.Client
+	Config                conf.Config
+	Logger                *zap.Logger
+	DB                    *gorm.DB
+	BscClient             *ethclient.Client
+	BinanceFuturesClient  *futures.Client
+	BinanceFuturesClient2 *futures.Client
+	RedisClient           *redis.Client
 )
