@@ -164,12 +164,13 @@ func (s *DataService) Stop() {
 func (s *DataService) CheckPosition() {
 
 	priceToAvgSpreadPct := s.GetPriceToAvgSpreadPct()
-
 	//现货涨幅超过1%
 	if priceToAvgSpreadPct.GreaterThanOrEqual(decimal.NewFromFloat(0.01)) {
+		global.Logger.Info("现货涨幅超过1%")
 		//池子br数量降低
 		isPoolLow := s.GetBrPoolBalanceLow()
 		if isPoolLow {
+			global.Logger.Info("br pool low")
 			//现货准备上涨，开仓
 			s.CreateOrder(futures.SideTypeBuy)
 		}
@@ -177,9 +178,11 @@ func (s *DataService) CheckPosition() {
 
 	//现货跌幅超过1%
 	if priceToAvgSpreadPct.LessThanOrEqual(decimal.NewFromFloat(-0.01)) {
+		global.Logger.Info("现货跌幅超过1%")
 		//池子usdt数量降低
 		isPoolLow := s.GetUsdtPoolBalanceLow()
 		if isPoolLow {
+			global.Logger.Info("usdt pool low")
 			//现货准备下跌，开仓
 			s.CreateOrder(futures.SideTypeSell)
 		}
